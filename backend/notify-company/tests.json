@@ -1,0 +1,1 @@
+{"tests": [{"name": "OPTIONS preflight", "method": "OPTIONS", "path": "/", "expectedStatus": 200}, {"name": "Missing company_id", "method": "POST", "path": "/", "body": {"event_type": "test"}, "expectedStatus": 400, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"}, {"name": "GET not allowed", "method": "GET", "path": "/", "expectedStatus": 405}]}

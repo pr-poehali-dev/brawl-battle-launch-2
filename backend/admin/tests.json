@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Auth check - no secret returns 401",
+      "method": "GET",
+      "path": "/?resource=analytics",
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Analytics with secret",
+      "method": "GET",
+      "path": "/?resource=analytics",
+      "headers": {"X-Admin-Secret": "test-secret"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Отправка сообщения с формы обратной связи",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Иван Петров",
+        "email": "ivan@example.com",
+        "message": "Здравствуйте! Хотел бы узнать больше о вашей платформе."
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Проверка обязательных полей",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тест",
+        "email": "test@test.com"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

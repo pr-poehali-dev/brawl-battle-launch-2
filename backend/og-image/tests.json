@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Generate OG image for vacancy",
+      "method": "GET",
+      "path": "/?title=Senior Frontend Developer&department=IT&salary=200000-300000 ₽",
+      "expectedStatus": 200,
+      "expectedHeaders": {
+        "Content-Type": "image/png"
+      }
+    },
+    {
+      "name": "OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

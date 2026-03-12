@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Get payout requests by company",
+      "method": "GET",
+      "path": "/?company_id=18",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get payout requests by user",
+      "method": "GET",
+      "path": "/?user_id=32",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Update non-existent request returns 404",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "request_id": 999999,
+        "status": "approved",
+        "admin_comment": "test",
+        "reviewed_by": 32
+      },
+      "expectedStatus": 404,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

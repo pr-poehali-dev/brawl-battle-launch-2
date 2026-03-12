@@ -1,0 +1,1 @@
+ALTER TABLE t_p65890965_refstaff_project.users ADD COLUMN IF NOT EXISTS is_fired boolean NOT NULL DEFAULT false;

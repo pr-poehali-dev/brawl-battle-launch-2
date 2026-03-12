@@ -1,0 +1,46 @@
+# robots.txt для iHUNT - платформа реферального рекрутинга
+
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию служебных файлов и технических директорий
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /admin
+Disallow: /api
+
+# Разрешаем важные ресурсы для SEO
+Allow: /favicon.svg
+Allow: /manifest.json
+Allow: /*.css$
+Allow: /*.js$
+
+# Указываем sitemap для поисковых систем
+Sitemap: https://refstaff.poehali.dev/sitemap.xml
+
+# Специальные правила для основных поисковых ботов
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Социальные сети для Open Graph
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Общее ограничение скорости краулинга
+Crawl-delay: 1

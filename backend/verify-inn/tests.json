@@ -1,0 +1,44 @@
+{
+  "tests": [
+    {
+      "name": "Valid INN check returns company data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "inn": "7707083893"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "inn": "string",
+        "name": "object",
+        "address": "object",
+        "status": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing INN returns 400 error",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Invalid INN format returns 400 error",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "inn": "123"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

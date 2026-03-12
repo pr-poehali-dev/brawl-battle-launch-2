@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get vacancies list",
+      "method": "GET",
+      "path": "/?resource=vacancies&company_id=1&status=active",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get employees list",
+      "method": "GET",
+      "path": "/?resource=employees&company_id=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get company profile",
+      "method": "GET",
+      "path": "/?resource=company&company_id=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get wallet info",
+      "method": "GET",
+      "path": "/?resource=wallet&user_id=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Delete employee returns 404 for non-existing",
+      "method": "DELETE",
+      "path": "/?resource=employees&user_id=99999",
+      "expectedStatus": 404
+    }
+  ]
+}

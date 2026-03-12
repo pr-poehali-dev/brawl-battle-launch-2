@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get company by valid token",
+      "method": "GET",
+      "path": "/?invite_token=test123",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "company": {
+          "id": "number",
+          "name": "string",
+          "invite_token": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get company without token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

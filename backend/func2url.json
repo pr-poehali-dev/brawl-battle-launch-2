@@ -1,0 +1,18 @@
+{
+  "admin": "https://functions.poehali.dev/e7549642-317b-4f05-b0f9-2c056de3cef0",
+  "upload-resume": "https://functions.poehali.dev/369f37fd-9898-42bb-9c4c-3bf096f5da1b",
+  "og-proxy": "https://functions.poehali.dev/44878f98-7873-41f8-a3b0-f47731016858",
+  "game-scores": "https://functions.poehali.dev/be3440bd-7b48-44a5-9e9b-442a9c17d5a8",
+  "notify-company": "https://functions.poehali.dev/271cd5d9-0140-4c60-9689-1fd5d74409be",
+  "get-company-by-token": "https://functions.poehali.dev/f1f66940-161e-4221-a729-4e0e555af034",
+  "reset-password": "https://functions.poehali.dev/490186ec-0761-4387-8b05-813aea3e8f94",
+  "request-password-reset": "https://functions.poehali.dev/ec8d2e7d-ee4d-47cc-86ee-91464da954c3",
+  "contact-form": "https://functions.poehali.dev/7316b3af-fb17-41b7-a4f3-9195c9f48288",
+  "send-email": "https://functions.poehali.dev/f3ec5cfe-f5d1-4d21-9161-70bd08bed000",
+  "verify-inn": "https://functions.poehali.dev/822a1d32-f349-4962-9727-e0f529a73b8e",
+  "chatgpt-polza-chatgpt": "https://functions.poehali.dev/05161540-8bd2-4390-a676-2d52a955df60",
+  "og-image": "https://functions.poehali.dev/c7d354d0-8ca6-4954-9c7d-d831a0fee869",
+  "payouts": "https://functions.poehali.dev/f88ab2cf-1304-40dd-82e4-a7a1f7358901",
+  "auth": "https://functions.poehali.dev/acbe95f3-fa47-4ba2-bd00-aba68c67fafa",
+  "api": "https://functions.poehali.dev/30d9dba4-a499-4866-8ccc-ea7addf62b16"
+}

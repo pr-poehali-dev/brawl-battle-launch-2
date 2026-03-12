@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Vacancy OG proxy returns HTML",
+      "method": "GET",
+      "path": "/?type=vacancy&id=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Referral OG proxy returns HTML",
+      "method": "GET",
+      "path": "/?type=referral&id=21c8ec74eeacfcdddbc3e897166fb967",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Employee register OG proxy returns HTML",
+      "method": "GET",
+      "path": "/?type=employee&id=6e0a28a7a23b3c7620ba603aea4e0b04",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Missing params returns 400",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Get leaderboard for memory",
+      "method": "GET",
+      "path": "/?game=memory",
+      "expectedStatus": 200,
+      "expectedBody": {"leaders": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

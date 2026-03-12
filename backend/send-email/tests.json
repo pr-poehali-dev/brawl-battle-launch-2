@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Send verification email successfully",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "to_email": "test@example.com",
+        "user_name": "Test User",
+        "verification_token": "abc123def456",
+        "base_url": "https://project.poehali.dev"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing required fields returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "to_email": "test@example.com"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
