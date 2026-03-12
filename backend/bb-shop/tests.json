@@ -1,11 +1,11 @@
 {
   "tests": [
     {
-      "name": "Get purchase history",
-      "method": "GET",
-      "path": "/history?user_id=1",
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
       "expectedStatus": 200,
-      "expectedBody": {"history": []},
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

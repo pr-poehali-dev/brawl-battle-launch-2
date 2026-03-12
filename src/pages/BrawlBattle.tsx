@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+import { bbApi } from "@/lib/bbApi";
 
 /* ─── TYPES ─────────────────────────────────────────────────────── */
 type Tab = "home" | "profile" | "shop" | "events" | "giveaway" | "rewards" | "settings";
 
 interface User {
+  id: number;
   name: string;
   crystals: number;
   coins: number;
@@ -17,6 +19,30 @@ interface User {
   activeTitle: string;
   profileIcon: string;
   vipStyle: boolean;
+  heartCollected: boolean;
+  letterCollected: boolean;
+  dailyGiftAt: string | null;
+}
+
+function apiUserToUser(u: Record<string, unknown>): User {
+  return {
+    id: u.id as number,
+    name: u.username as string,
+    crystals: u.crystals as number,
+    coins: u.coins as number,
+    beautyPoints: u.beauty_points as number,
+    level: u.level as number,
+    xp: u.xp as number,
+    xpMax: u.xp_max as number,
+    joinedAt: u.created_at ? new Date(u.created_at as string).toLocaleDateString("ru-RU") : "",
+    titles: (u.titles as string[]) || [],
+    activeTitle: (u.active_title as string) || "",
+    profileIcon: (u.profile_icon as string) || "🎮",
+    vipStyle: u.vip_style as boolean,
+    heartCollected: u.heart_collected as boolean,
+    letterCollected: u.letter_collected as boolean,
+    dailyGiftAt: (u.daily_gift_at as string) || null,
+  };
 }
 
 interface TimeLeft {
@@ -322,31 +348,28 @@ function AuthModal({
   const [name, setName] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim() || !pass.trim()) {
       setError("Заполните все поля");
       return;
     }
-    if (mode === "register" && pass === "BBATTLE") {
-      setError("Этот пароль зарезервирован");
-      return;
+    setLoading(true);
+    setError("");
+    try {
+      const fn = mode === "register" ? bbApi.register : bbApi.login;
+      const data = await fn(name.trim(), pass);
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+      onLogin(apiUserToUser(data.user));
+    } catch {
+      setError("Ошибка соединения. Попробуй ещё раз.");
+    } finally {
+      setLoading(false);
     }
-    const isAdmin = pass === "BBATTLE";
-    onLogin({
-      name: name.trim(),
-      crystals: 0,
-      coins: 100,
-      beautyPoints: 0,
-      level: 1,
-      xp: 0,
-      xpMax: 100,
-      joinedAt: new Date().toLocaleDateString("ru-RU"),
-      titles: [],
-      activeTitle: isAdmin ? "Администратор" : "",
-      profileIcon: "🎮",
-      vipStyle: isAdmin,
-    });
   };
 
   return (
@@ -394,9 +417,10 @@ function AuthModal({
           {error && <p className="text-red-400 text-sm font-rubik text-center">{error}</p>}
           <button
             onClick={handleSubmit}
-            className="gradient-purple neon-glow-purple rounded-xl py-3 font-russo text-white text-lg hover:scale-105 transition-transform"
+            disabled={loading}
+            className="gradient-purple neon-glow-purple rounded-xl py-3 font-russo text-white text-lg hover:scale-105 transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {mode === "login" ? "ВОЙТИ" : "НАЧАТЬ"}
+            {loading ? "⏳ ЗАГРУЗКА..." : mode === "login" ? "ВОЙТИ" : "НАЧАТЬ"}
           </button>
         </div>
 
@@ -454,24 +478,27 @@ function NavBar({ tab, setTab, user }: { tab: Tab; setTab: (t: Tab) => void; use
 }
 
 /* ─── HOME PAGE ─────────────────────────────────────────────────── */
-function HomePage({ user, launched }: { user: User; launched: boolean }) {
-  const [heartCollected, setHeartCollected] = useState(false);
-  const [letterCollected, setLetterCollected] = useState(false);
+function HomePage({ user, setUser, launched }: { user: User; setUser: (u: User) => void; launched: boolean }) {
   const [showHeartPrize, setShowHeartPrize] = useState(false);
   const [showLetterPrize, setShowLetterPrize] = useState(false);
+  const [dailyMsg, setDailyMsg] = useState("");
 
-  const collectHeart = () => {
-    if (heartCollected) return;
-    setHeartCollected(true);
-    setShowHeartPrize(true);
-    setTimeout(() => setShowHeartPrize(false), 3000);
+  const collectHeart = async () => {
+    if (user.heartCollected) return;
+    const data = await bbApi.collectGift(user.id, "heart");
+    if (data.user) { setUser(apiUserToUser(data.user)); setShowHeartPrize(true); setTimeout(() => setShowHeartPrize(false), 3000); }
   };
 
-  const collectLetter = () => {
-    if (letterCollected) return;
-    setLetterCollected(true);
-    setShowLetterPrize(true);
-    setTimeout(() => setShowLetterPrize(false), 3000);
+  const collectLetter = async () => {
+    if (user.letterCollected || !user.heartCollected) return;
+    const data = await bbApi.collectGift(user.id, "letter");
+    if (data.user) { setUser(apiUserToUser(data.user)); setShowLetterPrize(true); setTimeout(() => setShowLetterPrize(false), 3000); }
+  };
+
+  const claimDaily = async () => {
+    const data = await bbApi.dailyGift(user.id);
+    if (data.user) { setUser(apiUserToUser(data.user)); setDailyMsg(`+${data.reward} монет!`); setTimeout(() => setDailyMsg(""), 3000); }
+    else if (data.error) { setDailyMsg(data.error); setTimeout(() => setDailyMsg(""), 3000); }
   };
 
   return (
@@ -511,34 +538,34 @@ function HomePage({ user, launched }: { user: User; launched: boolean }) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={collectHeart}
-                disabled={heartCollected}
+                disabled={user.heartCollected}
                 className={`relative rounded-2xl p-4 flex flex-col items-center gap-2 transition-all duration-300 card-3d ${
-                  heartCollected
+                  user.heartCollected
                     ? "glass opacity-50 cursor-not-allowed"
                     : "glass-purple neon-glow-purple hover:scale-105 active:scale-95"
                 }`}
               >
-                <span className="text-5xl animate-float">{heartCollected ? "✅" : "💖"}</span>
+                <span className="text-5xl animate-float">{user.heartCollected ? "✅" : "💖"}</span>
                 <span className="font-russo text-sm text-white">Star Сердце</span>
                 <span className="text-xs text-white/50 font-rubik">Шанс на призы!</span>
               </button>
 
               <button
                 onClick={collectLetter}
-                disabled={letterCollected || !heartCollected}
+                disabled={user.letterCollected || !user.heartCollected}
                 className={`relative rounded-2xl p-4 flex flex-col items-center gap-2 transition-all duration-300 card-3d ${
-                  letterCollected
+                  user.letterCollected
                     ? "glass opacity-50 cursor-not-allowed"
-                    : heartCollected
+                    : user.heartCollected
                     ? "glass-gold neon-glow-gold hover:scale-105 active:scale-95"
                     : "glass opacity-40 cursor-not-allowed"
                 }`}
               >
                 <span
                   className="text-5xl font-russo text-gold text-glow-gold"
-                  style={heartCollected ? { animation: "letter-float 2s ease-in-out infinite" } : {}}
+                  style={user.heartCollected ? { animation: "letter-float 2s ease-in-out infinite" } : {}}
                 >
-                  {letterCollected ? "✅" : "Б"}
+                  {user.letterCollected ? "✅" : "Б"}
                 </span>
                 <span className="font-russo text-sm text-white">Star Буква Б</span>
                 <span className="text-xs text-white/50 font-rubik">Бонусы профиля!</span>
@@ -612,7 +639,15 @@ function HomePage({ user, launched }: { user: User; launched: boolean }) {
 
       <div className="glass rounded-2xl p-4">
         <h3 className="font-russo text-white text-sm mb-3">🎁 Ежедневный подарок</h3>
-        <button className="w-full gradient-purple neon-glow-purple rounded-xl py-3 font-russo text-white hover:scale-105 active:scale-95 transition-transform">
+        {dailyMsg && (
+          <p className={`text-center text-sm font-rubik mb-2 ${dailyMsg.includes("+") ? "text-gold" : "text-red-400"}`}>
+            {dailyMsg}
+          </p>
+        )}
+        <button
+          onClick={claimDaily}
+          className="w-full gradient-purple neon-glow-purple rounded-xl py-3 font-russo text-white hover:scale-105 active:scale-95 transition-transform"
+        >
           ОТКРЫТЬ ПОДАРОК
         </button>
       </div>
@@ -713,31 +748,17 @@ function ProfilePage({ user, setUser }: { user: User; setUser: (u: User) => void
 
 /* ─── SHOP PAGE ─────────────────────────────────────────────────── */
 function ShopPage({ user, setUser, launched }: { user: User; setUser: (u: User) => void; launched: boolean }) {
-  const [bought, setBought] = useState<Record<number, number>>({});
   const [openResult, setOpenResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const buyItem = (item: typeof SHOP_ITEMS[0]) => {
-    const count = bought[item.id] || 0;
-    if (count >= item.maxBuy) return;
-    if (user.crystals < item.price) return;
-
-    const roll = Math.random() * 100;
-    let result = "5 кристаллов";
-    let cumulative = 0;
-
-    if ("prizes" in item) {
-      for (const prize of item.prizes) {
-        cumulative += prize.chance;
-        if (roll <= cumulative) {
-          result = prize.name;
-          break;
-        }
-      }
-    }
-
-    setBought((prev) => ({ ...prev, [item.id]: count + 1 }));
-    setUser({ ...user, crystals: user.crystals - item.price });
-    setOpenResult(result);
+  const buyItem = async (item: typeof SHOP_ITEMS[0]) => {
+    if (loading || user.crystals < item.price) return;
+    setLoading(true);
+    const data = await bbApi.buyItem(user.id, item.id);
+    setLoading(false);
+    if (data.error) { setOpenResult("❌ " + data.error); setTimeout(() => setOpenResult(null), 3000); return; }
+    if (data.user) setUser(apiUserToUser(data.user));
+    setOpenResult(data.prize || "Приз получен!");
     setTimeout(() => setOpenResult(null), 3000);
   };
 
@@ -761,16 +782,12 @@ function ShopPage({ user, setUser, launched }: { user: User; setUser: (u: User) 
 
       <div className="flex flex-col gap-4 mb-8">
         {SHOP_ITEMS.map((item) => {
-          const count = bought[item.id] || 0;
-          const isSoldOut = count >= item.maxBuy;
-          const canBuy = launched && !isSoldOut && user.crystals >= item.price;
+          const canBuy = launched && !loading && user.crystals >= item.price;
 
           return (
             <div
               key={item.id}
-              className={`glass rounded-3xl p-5 card-3d border ${
-                isSoldOut ? "border-white/10 opacity-60" : "border-purple-500/30"
-              }`}
+              className="glass rounded-3xl p-5 card-3d border border-purple-500/30"
             >
               <div className="flex items-start gap-4 mb-4">
                 <div
@@ -782,7 +799,7 @@ function ShopPage({ user, setUser, launched }: { user: User; setUser: (u: User) 
                 <div className="flex-1">
                   <h3 className="font-russo text-white text-base">{item.name}</h3>
                   <p className="text-white/40 text-xs font-rubik">
-                    Доступно с {item.availableAt} · Куплено {count}/{item.maxBuy}
+                    Доступно с {item.availableAt} · Макс. {item.maxBuy} шт.
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     <span className="text-sm">💎</span>
@@ -820,14 +837,12 @@ function ShopPage({ user, setUser, launched }: { user: User; setUser: (u: User) 
                 onClick={() => buyItem(item)}
                 disabled={!canBuy}
                 className={`w-full py-3 rounded-xl font-russo text-sm transition-all duration-200 ${
-                  isSoldOut
-                    ? "glass text-white/30 cursor-not-allowed"
-                    : canBuy
+                  canBuy
                     ? `bg-gradient-to-r ${item.gradient} text-white hover:scale-105 active:scale-95`
                     : "glass text-white/30 cursor-not-allowed"
                 }`}
               >
-                {isSoldOut ? "КУПЛЕНО" : !launched ? "СКОРО" : user.crystals < item.price ? "НЕТ КРИСТАЛЛОВ" : "КУПИТЬ"}
+                {loading ? "⏳" : !launched ? "СКОРО" : user.crystals < item.price ? "НЕТ КРИСТАЛЛОВ" : "КУПИТЬ"}
               </button>
             </div>
           );
@@ -1232,6 +1247,7 @@ export default function BrawlBattle() {
   const [launched, setLaunched] = useState(() => new Date() >= LAUNCH_DATE);
   const [showCountdown, setShowCountdown] = useState(() => new Date() < LAUNCH_DATE);
   const [user, setUser] = useState<User | null>(null);
+  const setUserSafe = useCallback((u: User) => setUser(u), []);
   const [tab, setTab] = useState<Tab>("home");
   const [showFireworks, setShowFireworks] = useState(false);
   const [showFloatingLetters, setShowFloatingLetters] = useState(false);
@@ -1256,7 +1272,7 @@ export default function BrawlBattle() {
     return (
       <>
         <Particles count={25} />
-        <AuthModal onLogin={setUser} />
+        <AuthModal onLogin={setUserSafe} />
       </>
     );
   }
@@ -1269,9 +1285,9 @@ export default function BrawlBattle() {
       <SocialBurst active={showSocialBurst} />
 
       <div className="relative z-10">
-        {tab === "home" && <HomePage user={user} launched={launched} />}
-        {tab === "profile" && <ProfilePage user={user} setUser={setUser} />}
-        {tab === "shop" && <ShopPage user={user} setUser={setUser} launched={launched} />}
+        {tab === "home" && <HomePage user={user} setUser={setUserSafe} launched={launched} />}
+        {tab === "profile" && <ProfilePage user={user} setUser={setUserSafe} />}
+        {tab === "shop" && <ShopPage user={user} setUser={setUserSafe} launched={launched} />}
         {tab === "events" && <EventsPage launched={launched} />}
         {tab === "giveaway" && <GiveawayPage launched={launched} />}
         {tab === "rewards" && <RewardsPage user={user} />}

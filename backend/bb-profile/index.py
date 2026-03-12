@@ -49,9 +49,11 @@ def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS, 'body': ''}
 
-    path = event.get('path', '/')
     conn = get_conn()
     cur = conn.cursor()
+    body_raw = event.get('body') or '{}'
+    body_pre = json.loads(body_raw)
+    path = body_pre.get('_path') or event.get('queryStringParameters', {}).get('_path') or event.get('path', '/')
 
     if event.get('httpMethod') == 'GET' and '/profile' in path:
         user_id = event.get('queryStringParameters', {}).get('user_id')
@@ -65,7 +67,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': CORS, 'body': json.dumps({'user': user})}
 
     if event.get('httpMethod') == 'POST':
-        body = json.loads(event.get('body') or '{}')
+        body = body_pre
         user_id = body.get('user_id')
 
         if '/collect-gift' in path:

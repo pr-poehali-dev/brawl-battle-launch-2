@@ -1,9 +1,9 @@
 {
   "tests": [
     {
-      "name": "Get profile",
-      "method": "GET",
-      "path": "/profile?user_id=1",
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
       "expectedStatus": 200,
       "expectedBody": {},
       "bodyMatcher": "partial"

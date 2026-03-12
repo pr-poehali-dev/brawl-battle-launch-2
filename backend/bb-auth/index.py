@@ -34,8 +34,8 @@ def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS, 'body': ''}
 
-    path = event.get('path', '/')
     body = json.loads(event.get('body') or '{}')
+    path = body.get('_path') or event.get('path', '/')
     username = (body.get('username') or '').strip()
     password = body.get('password', '')
 
