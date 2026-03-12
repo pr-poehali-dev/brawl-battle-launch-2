@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "Register new user",
+      "method": "POST",
+      "path": "/register",
+      "body": {"username": "testplayer123", "password": "secret123"},
+      "expectedStatus": 200,
+      "expectedBody": {"user": {"username": "testplayer123"}},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login as admin",
+      "method": "POST",
+      "path": "/login",
+      "body": {"username": "admin_bb", "password": "BBATTLE"},
+      "expectedStatus": 200,
+      "expectedBody": {"user": {"is_admin": true}},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

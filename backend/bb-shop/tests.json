@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Get purchase history",
+      "method": "GET",
+      "path": "/history?user_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {"history": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
